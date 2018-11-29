@@ -1,6 +1,3 @@
-const Util = require('../util')
-const debug = Util.Log('Helpers:ObjectMap')
-
 class ObjectMap {
   constructor() {
     this.initMap()
@@ -28,34 +25,26 @@ class ObjectMap {
   }
 
   // LISTENERS
-  uniqueListenerID(id) {
-    if (!id) { id = Util.ID.guid() }
-    if (this._listeners[id]) {
-      return this.ensureUniqueListenerID(Util.ID.guid())
-    } else {
-      return id
-    }
-  }
-
   addListener({ id, callback }) {
-    id = this.uniqueListenerID(id)
+    if (typeof id !== 'string') {
+      console.error(new Error(`'id' must be of type String. ${typeof id} was given.`))
+      return null
+    }
     if (typeof callback === 'function') {
       this._listeners[id] = callback
       return id
     }
-    debug('Cannot add listener of type', typeof callback)
     return null
   }
 
   removeListener({ id }) {
-    debug('Removing listener:', id)
     delete this._listeners[id]
   }
 
   notify(method, prop, value) {
     Object.keys(this._listeners).forEach(key => {
       const callback = this._listeners[key]
-      if (typeof key === 'function') {
+      if (typeof callback === 'function') {
         callback(method, prop, value)
       }
     })
