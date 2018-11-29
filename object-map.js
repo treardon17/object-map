@@ -24,6 +24,11 @@ class ObjectMap {
     return this._items
   }
 
+  markDirty() {
+    console.log('marking dirty')
+    this._itemsDirty = true
+  }
+
   // LISTENERS
   addListener({ id, callback }) {
     if (typeof id !== 'string') {

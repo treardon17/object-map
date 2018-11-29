@@ -17,12 +17,13 @@ class ObjectTree {
   nestedVal(id = [], value, create = false) {
     let val = this.root.map[id[0]]
     for (let i = 1; i < id.length; i += 1) {
+      const lastIndex = (i === id.length - 1)
       let newID = null
       if (id[i] != null) newID = id[i]
       else return new Error('Null value in ID sequence')
-      if (val.root.map[newID] == null) {
+      if (val.root.map[newID] === undefined) {
         if (create) {
-          if (i === id.length - 1) {
+          if (lastIndex) {
             // we're at the end of the list
             val.root.map[newID] = value
           } else {
@@ -33,7 +34,11 @@ class ObjectTree {
           return null
         }
       } else {
-        val = val[newID]
+        if (value !== undefined && lastIndex) {
+          val.root.map[newID] = value
+          val = value
+        }
+        else val = val.root.map[newID]
       }
     }
     return val
@@ -60,10 +65,10 @@ class ObjectTree {
   onBranchUpdate(method, prop, value) {
     if (this.parent instanceof ObjectTree) {
       this.parent.onBranchUpdate(method, prop, value)
-    } else if (method === 'get') {
-      console.log(method, prop)
-    } else if (method === 'set') {
-      console.log(method, prop)
+      // the parent is dirty if we set something in the child
+      if (method === 'set') {
+        this.parent.root.markDirty()
+      }
     }
   }
 }
