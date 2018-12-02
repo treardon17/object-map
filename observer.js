@@ -1,6 +1,7 @@
 class Observer {
-  constructor({ onGet, onSet, autoCommit = true } = {}) {
-    return new Proxy(this, {
+  constructor({ onGet, onSet, data = {}, autoCommit = true } = {}) {
+    // GENERATE PROXY
+    const proxy = new Proxy(this, {
       // SETTER
       set: (object, key, value, proxy) => {
         if (onSet instanceof Function) {
@@ -19,25 +20,39 @@ class Observer {
           if (autoCommit) commit()
         } else {
           object[key] = value
-          return true
         }
+        return true
       },
       // GETTER
-      get: (object, key, value, proxy) => {
+      get: (object, key) => {
         if (onGet instanceof Function) {
-          onGet({ object, key, value, proxy, commit: (cbKey, cbVal) => {
-              // key is value if cbVal is undefined
-              if (key == null && cbKey == null) return object
-              if (cbKey == null) return object[key]
-              else return object[cgKey]
-            }
-          })
+          const commit = (cbKey) => {
+            // key is value if cbVal is undefined
+            if (key == null && cbKey == null) return object
+            if (cbKey == null) return object[key]
+            else return object[cgKey]
+          }
+          const params = { object, key }
+          if (!autoCommit) params.commit = commit
+          onGet(params)
+          if (autoCommit) commit()
         } else if (key != null) {
           return object[key]
         }
         return object
       }
     })
+
+    // setup data
+    if (data instanceof Object) {
+      Object.keys(data).forEach((key) => {
+        proxy[key] = new Observer({ data: data[key] })
+      })
+    } else {
+      console.log(data)
+    }
+
+    return proxy
   }
 }
 
