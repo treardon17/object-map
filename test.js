@@ -13,24 +13,19 @@
 // console.log(objectTree)
 
 const Observer = require('./observer')
-// const obs = new Observer({ autoCommit: false, onSet: ({ object, key, value, commit }) => {
-//   console.log(object, key, value)
-//   commit('test prop', 'middleware')
-// }})
+
 const obs = new Observer({
   data: {
-    hello: 'world'
+    hello: [{ value: 'test' }]
   },
-  onSet: ({ object, key, value }) => {
-    console.log('SET', object, key, value)
+  onSet: ({ key, value }) => {
+    console.log('SET', key, value)
   },
   onGet: ({ object, key }) => {
-    console.log('GET', object[key])
+    console.log('GET', object, key)
   }
 })
 
-// const test = obs['test prop']
-// obs.test = {}
-// obs.test.something = 'hello!'
-// obs.test.something = 'hello2!'
-// console.log(obs.test.something)
+obs.hello[0].value = 'did this work'
+console.log('val is:', obs.hello[0].value)
+
