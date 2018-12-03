@@ -15,11 +15,13 @@
 const Observer = require('./observer')
 
 const obs = new Observer({
+  autoCommitSet: false,
   data: {
     hello: [{ value: 'test' }]
   },
-  onSet: ({ key, value }) => {
+  onSet: ({ key, value, commit }) => {
     console.log('SET', key, value)
+    commit()
   },
   onGet: ({ object, key }) => {
     console.log('GET', object, key)
